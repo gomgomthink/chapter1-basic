@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학원관리 시스템</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 로그인 화면 -->
+        <div id="loginScreen" class="screen active">
+            <div class="login-container">
+                <h1><i class="fas fa-graduation-cap"></i> 학원관리 시스템</h1>
+                <div class="login-form">
+                    <input type="text" id="teacherId" placeholder="선생님 ID" required>
+                    <input type="password" id="teacherPassword" placeholder="비밀번호" required>
+                    <button onclick="login()" class="btn primary">로그인</button>
+                </div>
+                <div class="google-auth">
+                    <button onclick="signInWithGoogle()" class="btn google">
+                        <i class="fab fa-google"></i> Google로 로그인
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 대시보드 -->
+        <div id="mainScreen" class="screen">
+            <nav class="sidebar">
+                <div class="nav-header">
+                    <h2><i class="fas fa-graduation-cap"></i> 학원관리</h2>
+                    <div class="user-info">
+                        <span id="currentUser"></span>
+                        <button onclick="logout()" class="btn-logout">로그아웃</button>
+                    </div>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="showSection('dashboard')" class="active">
+                        <i class="fas fa-tachometer-alt"></i> 대시보드
+                    </a></li>
+                    <li><a href="#" onclick="showSection('students')">
+                        <i class="fas fa-user-graduate"></i> 학생관리
+                    </a></li>
+                    <li><a href="#" onclick="showSection('schedule')">
+                        <i class="fas fa-calendar-alt"></i> 시간표
+                    </a></li>
+                    <li><a href="#" onclick="showSection('records')">
+                        <i class="fas fa-clipboard-list"></i> 수업기록
+                    </a></li>
+                    <li><a href="#" onclick="showSection('grades')">
+                        <i class="fas fa-chart-line"></i> 성적관리
+                    </a></li>
+                    <li><a href="#" onclick="showSection('contacts')">
+                        <i class="fas fa-address-book"></i> 연락처
+                    </a></li>
+                </ul>
+            </nav>
+
+            <main class="main-content">
+                <!-- 대시보드 섹션 -->
+                <section id="dashboard" class="content-section active">
+                    <h2>대시보드</h2>
+                    <div class="dashboard-cards">
+                        <div class="card">
+                            <div class="card-icon"><i class="fas fa-user-graduate"></i></div>
+                            <div class="card-info">
+                                <h3 id="totalStudents">0</h3>
+                                <p>총 학생수</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon"><i class="fas fa-user-check"></i></div>
+                            <div class="card-info">
+                                <h3 id="activeStudents">0</h3>
+                                <p>재원생</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon"><i class="fas fa-user-times"></i></div>
+                            <div class="card-info">
+                                <h3 id="inactiveStudents">0</h3>
+                                <p>휴퇴원생</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon"><i class="fas fa-calendar-day"></i></div>
+                            <div class="card-info">
+                                <h3 id="todayClasses">0</h3>
+                                <p>오늘 수업</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-activities">
+                        <h3>최근 활동</h3>
+                        <div id="recentActivities" class="activity-list">
+                            <!-- 동적으로 생성됨 -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 학생관리 섹션 -->
+                <section id="students" class="content-section">
+                    <div class="section-header">
+                        <h2>학생관리</h2>
+                        <button onclick="showStudentModal()" class="btn primary">
+                            <i class="fas fa-plus"></i> 학생 등록
+                        </button>
+                    </div>
+                    
+                    <div class="filters">
+                        <select id="statusFilter" onchange="filterStudents()">
+                            <option value="all">전체</option>
+                            <option value="active">재원생</option>
+                            <option value="inactive">휴퇴원생</option>
+                        </select>
+                        <input type="text" id="searchStudent" placeholder="학생 검색..." onkeyup="filterStudents()">
+                    </div>
+
+                    <div class="table-container">
+                        <table id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>이름</th>
+                                    <th>학년</th>
+                                    <th>연락처</th>
+                                    <th>상태</th>
+                                    <th>등록일</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <!-- 동적으로 생성됨 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 시간표 섹션 -->
+                <section id="schedule" class="content-section">
+                    <div class="section-header">
+                        <h2>시간표</h2>
+                        <button onclick="showScheduleModal()" class="btn primary">
+                            <i class="fas fa-plus"></i> 수업 추가
+                        </button>
+                    </div>
+                    
+                    <div class="schedule-grid" id="scheduleGrid">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </section>
+
+                <!-- 수업기록 섹션 -->
+                <section id="records" class="content-section">
+                    <div class="section-header">
+                        <h2>수업기록</h2>
+                        <button onclick="showRecordModal()" class="btn primary">
+                            <i class="fas fa-plus"></i> 기록 추가
+                        </button>
+                    </div>
+                    
+                    <div class="filters">
+                        <select id="studentFilter" onchange="filterRecords()">
+                            <option value="">학생 선택</option>
+                        </select>
+                        <input type="date" id="dateFilter" onchange="filterRecords()">
+                    </div>
+
+                    <div class="table-container">
+                        <table id="recordsTable">
+                            <thead>
+                                <tr>
+                                    <th>날짜</th>
+                                    <th>학생</th>
+                                    <th>단어시험</th>
+                                    <th>듣기시험</th>
+                                    <th>숙제</th>
+                                    <th>메모</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsTableBody">
+                                <!-- 동적으로 생성됨 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 성적관리 섹션 -->
+                <section id="grades" class="content-section">
+                    <div class="section-header">
+                        <h2>성적관리</h2>
+                        <button onclick="showGradeModal()" class="btn primary">
+                            <i class="fas fa-plus"></i> 성적 입력
+                        </button>
+                    </div>
+                    
+                    <div class="filters">
+                        <select id="gradeStudentFilter" onchange="filterGrades()">
+                            <option value="">학생 선택</option>
+                        </select>
+                        <select id="examTypeFilter" onchange="filterGrades()">
+                            <option value="">시험 종류</option>
+                            <option value="midterm">중간고사</option>
+                            <option value="final">기말고사</option>
+                            <option value="quiz">쪽지시험</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="gradesTable">
+                            <thead>
+                                <tr>
+                                    <th>학생</th>
+                                    <th>시험종류</th>
+                                    <th>과목</th>
+                                    <th>점수</th>
+                                    <th>날짜</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradesTableBody">
+                                <!-- 동적으로 생성됨 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 연락처 섹션 -->
+                <section id="contacts" class="content-section">
+                    <h2>학부모 연락처</h2>
+                    
+                    <div class="contacts-grid" id="contactsGrid">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- 모달들 -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('studentModal')">&times;</span>
+            <h3 id="studentModalTitle">학생 등록</h3>
+            <form id="studentForm">
+                <input type="hidden" id="studentId">
+                <div class="form-group">
+                    <label>이름</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label>학년</label>
+                    <select id="studentGrade" required>
+                        <option value="">선택</option>
+                        <option value="초1">초등 1학년</option>
+                        <option value="초2">초등 2학년</option>
+                        <option value="초3">초등 3학년</option>
+                        <option value="초4">초등 4학년</option>
+                        <option value="초5">초등 5학년</option>
+                        <option value="초6">초등 6학년</option>
+                        <option value="중1">중학 1학년</option>
+                        <option value="중2">중학 2학년</option>
+                        <option value="중3">중학 3학년</option>
+                        <option value="고1">고등 1학년</option>
+                        <option value="고2">고등 2학년</option>
+                        <option value="고3">고등 3학년</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>학생 연락처</label>
+                    <input type="tel" id="studentPhone">
+                </div>
+                <div class="form-group">
+                    <label>학부모 연락처</label>
+                    <input type="tel" id="parentPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>학부모 이름</label>
+                    <input type="text" id="parentName">
+                </div>
+                <div class="form-group">
+                    <label>상태</label>
+                    <select id="studentStatus" required>
+                        <option value="active">재원</option>
+                        <option value="inactive">휴원</option>
+                        <option value="withdrawn">퇴원</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>메모</label>
+                    <textarea id="studentMemo" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('studentModal')" class="btn secondary">취소</button>
+                    <button type="submit" class="btn primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('scheduleModal')">&times;</span>
+            <h3>수업 추가</h3>
+            <form id="scheduleForm">
+                <div class="form-group">
+                    <label>요일</label>
+                    <select id="scheduleDay" required>
+                        <option value="">선택</option>
+                        <option value="monday">월요일</option>
+                        <option value="tuesday">화요일</option>
+                        <option value="wednesday">수요일</option>
+                        <option value="thursday">목요일</option>
+                        <option value="friday">금요일</option>
+                        <option value="saturday">토요일</option>
+                        <option value="sunday">일요일</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>시간</label>
+                    <input type="time" id="scheduleTime" required>
+                </div>
+                <div class="form-group">
+                    <label>수업명</label>
+                    <input type="text" id="className" required>
+                </div>
+                <div class="form-group">
+                    <label>강사</label>
+                    <input type="text" id="instructor" required>
+                </div>
+                <div class="form-group">
+                    <label>학생</label>
+                    <select id="scheduleStudents" multiple>
+                        <!-- 동적으로 생성됨 -->
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('scheduleModal')" class="btn secondary">취소</button>
+                    <button type="submit" class="btn primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="recordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('recordModal')">&times;</span>
+            <h3>수업기록 추가</h3>
+            <form id="recordForm">
+                <div class="form-group">
+                    <label>날짜</label>
+                    <input type="date" id="recordDate" required>
+                </div>
+                <div class="form-group">
+                    <label>학생</label>
+                    <select id="recordStudent" required>
+                        <option value="">선택</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>단어시험 점수</label>
+                    <input type="number" id="vocabularyScore" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>듣기시험 점수</label>
+                    <input type="number" id="listeningScore" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>숙제 완성도</label>
+                    <select id="homeworkStatus">
+                        <option value="">선택</option>
+                        <option value="완료">완료</option>
+                        <option value="미완료">미완료</option>
+                        <option value="부분완료">부분완료</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>수업 메모</label>
+                    <textarea id="recordMemo" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('recordModal')" class="btn secondary">취소</button>
+                    <button type="submit" class="btn primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="gradeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('gradeModal')">&times;</span>
+            <h3>성적 입력</h3>
+            <form id="gradeForm">
+                <div class="form-group">
+                    <label>학생</label>
+                    <select id="gradeStudent" required>
+                        <option value="">선택</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>시험 종류</label>
+                    <select id="examType" required>
+                        <option value="">선택</option>
+                        <option value="midterm">중간고사</option>
+                        <option value="final">기말고사</option>
+                        <option value="quiz">쪽지시험</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>과목</label>
+                    <input type="text" id="subject" required>
+                </div>
+                <div class="form-group">
+                    <label>점수</label>
+                    <input type="number" id="score" min="0" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label>시험 날짜</label>
+                    <input type="date" id="examDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('gradeModal')" class="btn secondary">취소</button>
+                    <button type="submit" class="btn primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="google-drive-api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
